@@ -5,26 +5,29 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
     
-    <!-- Background circle -->
+    <!-- Safe zone: 66dp circle centered at 54,54 -->
+    
+    <!-- Outer hexagon shape -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M0,0h108v108h-108z"/>
+        android:fillAlpha="0.9"
+        android:pathData="M54,20L74,32L74,56L54,68L34,56L34,32Z"/>
     
-    <!-- App icon - Flutter style -->
-    <group
-        android:scaleX="0.5"
-        android:scaleY="0.5"
-        android:translateX="27"
-        android:translateY="27">
-        
-        <!-- Flutter F shape -->
-        <path
-            android:fillColor="@color/primary"
-            android:pathData="M 50 20 L 80 20 L 50 50 L 65 50 L 80 35 L 80 65 L 50 95 L 35 80 L 65 50 L 50 50 Z"/>
-        
-        <!-- Accent dot -->
-        <path
-            android:fillColor="@color/accent"
-            android:pathData="M 70 70 m -8 0 a 8 8 0 1 1 16 0 a 8 8 0 1 1 -16 0"/>
-    </group>
+    <!-- Inner circle -->
+    <path
+        android:fillColor="#2196F3"
+        android:fillAlpha="0.8"
+        android:pathData="M 54 54 m -12, 0 a 12,12 0 1,0 24,0 a 12,12 0 1,0 -24,0"/>
+    
+    <!-- Cross icon -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M54,44L54,64"/>
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M44,54L64,54"/>
 </vector>

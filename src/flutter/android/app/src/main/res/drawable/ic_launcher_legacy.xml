@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    
+    <!-- Background circle -->
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M 24 24 m -24, 0 a 24,24 0 1,0 48,0 a 24,24 0 1,0 -48,0"/>
+    
+    <!-- Hexagon shape -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.9"
+        android:pathData="M24,10L34,16L34,32L24,38L14,32L14,16Z"/>
+    
+    <!-- Inner circle -->
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M 24 24 m -8, 0 a 8,8 0 1,0 16,0 a 8,8 0 1,0 -16,0"/>
+    
+    <!-- Cross icon -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:pathData="M24,18L24,30M18,24L30,24"/>
+</vector>
