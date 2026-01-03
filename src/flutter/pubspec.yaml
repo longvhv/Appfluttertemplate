@@ -21,9 +21,12 @@ dependencies:
   lottie: ^3.3.0
   
   # State Management
-  provider: ^6.2.0
-  riverpod: ^2.7.0
-  flutter_riverpod: ^2.7.0
+  flutter_bloc: ^8.1.6
+  bloc: ^8.1.4
+  bloc_concurrency: ^0.2.5
+  equatable: ^2.1.0
+  hydrated_bloc: ^9.1.5
+  replay_bloc: ^0.2.7
   
   # Navigation
   go_router: ^15.0.0
@@ -102,7 +105,6 @@ dependencies:
   # Additional useful packages
   freezed_annotation: ^2.5.0
   json_annotation: ^4.10.0
-  equatable: ^2.1.0
   logger: ^2.6.0
   rxdart: ^0.29.0
 

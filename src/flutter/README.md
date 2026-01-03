@@ -50,9 +50,9 @@ Enterprise-grade Flutter application with **Material Design 3**, **dark mode**, 
 - **Framework:** Flutter 3.38.0 ✨ **Latest**
 - **Language:** Dart 3.8.0 ✨ **Latest**
 - **Rendering:** Impeller (default) ⚡
-- **State Management:** Riverpod 2.6
-- **Routing:** GoRouter 14.x
-- **Storage:** Hive + SharedPreferences
+- **State Management:** flutter_bloc 8.1.6 🧩 **BLoC Pattern**
+- **Routing:** GoRouter 15.0
+- **Storage:** Hive + SharedPreferences + HydratedBloc
 - **Network:** Dio + HTTP
 - **UI Components:** Material 3 + Custom Widgets
 
@@ -498,6 +498,58 @@ upgrade_dependencies.bat
 ```
 
 **See `DEPENDENCIES_UPGRADE.md` for full details!**
+
+---
+
+### **🧩 BLoC State Management Implemented!**
+
+**What's New:**
+- ✅ **flutter_bloc 8.1.6** - Enterprise-grade state management
+- ✅ **4 Production BLoCs** (Auth, Theme, Locale, Counter)
+- ✅ **HydratedBloc** - Automatic state persistence
+- ✅ **BLoC Observer** - Advanced debugging & logging
+- ✅ **22 Events & 4 States** - Complete implementation
+- ✅ **100% testable** with bloc_test support
+
+**BLoC Pattern Features:**
+- 🎯 **Predictable state flow** (Event → BLoC ��� State)
+- 🔐 **AuthBloc** - Complete authentication flow
+- 🎨 **ThemeBloc** - Light/Dark mode with persistence
+- 🌍 **LocaleBloc** - Bilingual support (EN/VI)
+- 🔢 **CounterBloc** - Example implementation
+
+**Key Benefits:**
+- ⚡ Separation of UI and business logic
+- ⚡ Easy to test and debug
+- ⚡ Scalable architecture
+- ⚡ Auto state persistence
+- ⚡ Time-travel debugging ready
+
+**Documentation:**
+- 📚 **BLOC_IMPLEMENTATION.md** - Complete implementation guide
+- 📚 **lib/blocs/README.md** - Usage documentation
+- 📚 Examples and best practices included
+
+**Quick Usage:**
+```dart
+// Add event
+context.read<AuthBloc>().add(LoginEvent(
+  email: 'user@example.com',
+  password: 'password123',
+));
+
+// Listen to state
+BlocBuilder<AuthBloc, AuthState>(
+  builder: (context, state) {
+    if (state.isAuthenticated) {
+      return HomeScreen();
+    }
+    return LoginScreen();
+  },
+)
+```
+
+**See `BLOC_IMPLEMENTATION.md` for full details!**
 
 ---
 
