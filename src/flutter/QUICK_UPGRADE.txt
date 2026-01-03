@@ -1,0 +1,142 @@
+📦 QUICK UPGRADE COMMANDS
+
+═══════════════════════════════════════════════════════════════
+
+🚀 AUTOMATIC UPGRADE (Recommended)
+═══════════════════════════════════════════════════════════════
+
+macOS/Linux:
+  cd flutter
+  ./upgrade_to_latest.sh
+
+Windows:
+  cd flutter
+  upgrade_to_latest.bat
+
+═══════════════════════════════════════════════════════════════
+
+🔍 CHECK WHAT'S OUTDATED
+═══════════════════════════════════════════════════════════════
+
+Check all packages:
+  flutter pub outdated
+
+Check specific package:
+  flutter pub outdated <package_name>
+
+Examples:
+  flutter pub outdated flutter_bloc
+  flutter pub outdated dio
+  flutter pub outdated go_router
+
+═══════════════════════════════════════════════════════════════
+
+⬆️ UPGRADE COMMANDS
+═══════════════════════════════════════════════════════════════
+
+Upgrade ALL (including major versions):
+  flutter pub upgrade --major-versions
+
+Upgrade minor/patch only:
+  flutter pub upgrade
+
+Upgrade specific package:
+  flutter pub upgrade <package_name>
+
+Add specific version:
+  flutter pub add <package>:^<version>
+
+Examples:
+  flutter pub add flutter_bloc:^8.2.0
+  flutter pub add dio:^6.0.0
+
+═══════════════════════════════════════════════════════════════
+
+🧪 TEST AFTER UPGRADE
+═══════════════════════════════════════════════════════════════
+
+Clean & get dependencies:
+  flutter clean
+  flutter pub get
+
+Apply auto-fixes:
+  dart fix --apply
+
+Analyze code:
+  flutter analyze
+
+Run tests:
+  flutter test
+
+Run app:
+  flutter run
+
+═══════════════════════════════════════════════════════════════
+
+📚 DOCUMENTATION
+═══════════════════════════════════════════════════════════════
+
+Complete guide:
+  HOW_TO_UPGRADE_TO_LATEST.md
+
+Quick reference:
+  UPGRADE_GUIDE.md
+
+Last upgrade details:
+  DEPENDENCIES_UPGRADE.md
+
+═══════════════════════════════════════════════════════════════
+
+🔗 CHECK ONLINE
+═══════════════════════════════════════════════════════════════
+
+pub.dev homepage:
+  https://pub.dev
+
+Specific package:
+  https://pub.dev/packages/<package_name>
+
+Examples:
+  https://pub.dev/packages/flutter_bloc
+  https://pub.dev/packages/dio
+  https://pub.dev/packages/go_router
+
+═══════════════════════════════════════════════════════════════
+
+⚠️ IMPORTANT NOTES
+═══════════════════════════════════════════════════════════════
+
+1. Always backup before upgrading:
+   cp pubspec.yaml pubspec.yaml.backup
+
+2. Always check changelogs for major versions
+
+3. Always test after upgrading
+
+4. Use 'flutter pub outdated' to see REAL latest versions
+
+═══════════════════════════════════════════════════════════════
+
+✅ RECOMMENDED WORKFLOW
+═══════════════════════════════════════════════════════════════
+
+1. Backup:
+   cp pubspec.yaml pubspec.yaml.backup
+
+2. Check outdated:
+   flutter pub outdated
+
+3. Upgrade:
+   ./upgrade_to_latest.sh  (or upgrade_to_latest.bat)
+
+4. Test:
+   flutter analyze
+   flutter test
+   flutter run
+
+5. Commit:
+   git commit -am "Upgraded dependencies"
+
+═══════════════════════════════════════════════════════════════
+
+Last updated: January 3, 2026

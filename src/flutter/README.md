@@ -512,7 +512,7 @@ upgrade_dependencies.bat
 - ✅ **100% testable** with bloc_test support
 
 **BLoC Pattern Features:**
-- 🎯 **Predictable state flow** (Event → BLoC ��� State)
+- 🎯 **Predictable state flow** (Event → BLoC  State)
 - 🔐 **AuthBloc** - Complete authentication flow
 - 🎨 **ThemeBloc** - Light/Dark mode with persistence
 - 🌍 **LocaleBloc** - Bilingual support (EN/VI)
@@ -550,6 +550,60 @@ BlocBuilder<AuthBloc, AuthState>(
 ```
 
 **See `BLOC_IMPLEMENTATION.md` for full details!**
+
+---
+
+### **📦 How to Get REAL Latest Versions**
+
+**Important:** The dependency versions in this project may be outdated!
+
+**To upgrade to ACTUAL latest versions:**
+
+**Automatic (Recommended):**
+```bash
+cd flutter
+
+# macOS/Linux
+./upgrade_to_latest.sh
+
+# Windows
+upgrade_to_latest.bat
+```
+
+**Manual:**
+```bash
+# Check what's outdated
+flutter pub outdated
+
+# Upgrade to latest
+flutter pub upgrade --major-versions
+
+# Test everything
+flutter analyze
+flutter test
+flutter run
+```
+
+**Documentation:**
+- 📚 **HOW_TO_UPGRADE_TO_LATEST.md** - Complete upgrade guide
+- 📚 **UPGRADE_GUIDE.md** - Quick reference
+- 📚 Scripts: `upgrade_to_latest.sh/bat`, `check_latest_versions.sh/bat`
+
+**Key Commands:**
+```bash
+flutter pub outdated              # Check outdated packages
+flutter pub upgrade               # Upgrade minor/patch only
+flutter pub upgrade --major-versions  # Upgrade all (including major)
+flutter pub add package:^version  # Add specific version
+```
+
+**Always:**
+1. ✅ Check `flutter pub outdated` for real latest versions
+2. ✅ Read changelogs for major updates
+3. ✅ Test thoroughly after upgrading
+4. ✅ Keep backups before upgrading
+
+**See `HOW_TO_UPGRADE_TO_LATEST.md` for step-by-step instructions!**
 
 ---
 
