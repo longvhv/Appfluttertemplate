@@ -105,6 +105,9 @@ dependencies:
   
   # Logging
   logger: ^2.4.0
+  
+  # Fonts (alternative to bundling font files)
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:
@@ -124,9 +127,11 @@ flutter:
     - assets/icons/
     - assets/animations/
   
-  fonts:
-    - family: Roboto
-      fonts:
-        - asset: fonts/Roboto-Regular.ttf
-        - asset: fonts/Roboto-Bold.ttf
-          weight: 700
+  # Fonts - Using google_fonts package instead of bundling
+  # To use bundled fonts, download Roboto and uncomment:
+  # fonts:
+  #   - family: Roboto
+  #     fonts:
+  #       - asset: fonts/Roboto-Regular.ttf
+  #       - asset: fonts/Roboto-Bold.ttf
+  #         weight: 700
