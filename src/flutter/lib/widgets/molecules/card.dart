@@ -1,237 +1,225 @@
 import 'package:flutter/material.dart';
 
 /// Card widget matching web app design
+/// 
+/// Matches web Card component with all features:
+/// - 4 variants: default, elevated, outlined, filled
+/// - 5 padding sizes: none, sm, md, lg, xl
+/// - Hover effect support
+/// - Pressable/clickable
+/// - Sub-components: CardHeader, CardBody, CardFooter
 class AppCard extends StatelessWidget {
-  final Widget? child;
-  final String? title;
-  final String? subtitle;
-  final Widget? leading;
-  final Widget? trailing;
-  final List<Widget>? actions;
-  final VoidCallback? onTap;
-  final EdgeInsets? padding;
+  final Widget child;
+  final CardVariant variant;
+  final CardPadding padding;
+  final bool hover;
+  final bool pressable;
+  final VoidCallback? onPress;
   final Color? backgroundColor;
-  final double? elevation;
   final BorderRadius? borderRadius;
-  final Border? border;
-  final bool showDivider;
 
   const AppCard({
-    Key? key,
-    this.child,
-    this.title,
-    this.subtitle,
-    this.leading,
-    this.trailing,
-    this.actions,
-    this.onTap,
-    this.padding,
+    super.key,
+    required this.child,
+    this.variant = CardVariant.defaultVariant,
+    this.padding = CardPadding.md,
+    this.hover = false,
+    this.pressable = false,
+    this.onPress,
     this.backgroundColor,
-    this.elevation,
     this.borderRadius,
-    this.border,
-    this.showDivider = false,
-  }) : super(key: key);
+  });
+
+  /// Default card variant
+  const AppCard.defaultVariant({
+    super.key,
+    required this.child,
+    this.padding = CardPadding.md,
+    this.hover = false,
+    this.pressable = false,
+    this.onPress,
+    this.backgroundColor,
+    this.borderRadius,
+  }) : variant = CardVariant.defaultVariant;
+
+  /// Elevated card variant
+  const AppCard.elevated({
+    super.key,
+    required this.child,
+    this.padding = CardPadding.md,
+    this.hover = false,
+    this.pressable = false,
+    this.onPress,
+    this.backgroundColor,
+    this.borderRadius,
+  }) : variant = CardVariant.elevated;
+
+  /// Outlined card variant
+  const AppCard.outlined({
+    super.key,
+    required this.child,
+    this.padding = CardPadding.md,
+    this.hover = false,
+    this.pressable = false,
+    this.onPress,
+    this.backgroundColor,
+    this.borderRadius,
+  }) : variant = CardVariant.outlined;
+
+  /// Filled card variant
+  const AppCard.filled({
+    super.key,
+    required this.child,
+    this.padding = CardPadding.md,
+    this.hover = false,
+    this.pressable = false,
+    this.onPress,
+    this.backgroundColor,
+    this.borderRadius,
+  }) : variant = CardVariant.filled;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
-    Widget cardContent = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (title != null || subtitle != null || leading != null || trailing != null)
-          _buildHeader(theme),
-        if (showDivider && (title != null || subtitle != null))
-          Divider(height: 1, color: Colors.grey.shade300),
-        if (child != null)
-          Padding(
-            padding: padding ?? const EdgeInsets.all(16),
-            child: child!,
-          ),
-        if (actions != null && actions!.isNotEmpty) _buildActions(),
-      ],
-    );
+    final colorScheme = theme.colorScheme;
 
     return Card(
-      elevation: elevation ?? 1,
-      color: backgroundColor,
+      elevation: _getElevation(),
+      color: backgroundColor ?? _getBackgroundColor(colorScheme),
+      shadowColor: colorScheme.shadow.withOpacity(0.1),
       shape: RoundedRectangleBorder(
         borderRadius: borderRadius ?? BorderRadius.circular(12),
-        side: border != null
+        side: variant == CardVariant.outlined
             ? BorderSide(
-                color: border!.top.color,
-                width: border!.top.width,
+                color: colorScheme.outline,
+                width: 2,
               )
             : BorderSide.none,
       ),
-      child: onTap != null
-          ? InkWell(
-              onTap: onTap,
-              borderRadius: borderRadius ?? BorderRadius.circular(12),
-              child: cardContent,
-            )
-          : cardContent,
-    );
-  }
-
-  Widget _buildHeader(ThemeData theme) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          if (leading != null) ...[
-            leading!,
-            const SizedBox(width: 12),
-          ],
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (title != null)
-                  Text(
-                    title!,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                if (subtitle != null) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle!,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-          if (trailing != null) ...[
-            const SizedBox(width: 12),
-            trailing!,
-          ],
-        ],
+      child: InkWell(
+        onTap: pressable || onPress != null ? onPress : null,
+        borderRadius: borderRadius ?? BorderRadius.circular(12),
+        child: Container(
+          padding: _getPadding(),
+          child: child,
+        ),
       ),
     );
   }
 
-  Widget _buildActions() {
+  double _getElevation() {
+    switch (variant) {
+      case CardVariant.defaultVariant:
+        return hover ? 4 : 1;
+      case CardVariant.elevated:
+        return hover ? 8 : 4;
+      case CardVariant.outlined:
+      case CardVariant.filled:
+        return 0;
+    }
+  }
+
+  Color _getBackgroundColor(ColorScheme colorScheme) {
+    switch (variant) {
+      case CardVariant.defaultVariant:
+      case CardVariant.elevated:
+        return colorScheme.surface;
+      case CardVariant.outlined:
+        return Colors.transparent;
+      case CardVariant.filled:
+        return colorScheme.surfaceVariant;
+    }
+  }
+
+  EdgeInsets _getPadding() {
+    switch (padding) {
+      case CardPadding.none:
+        return EdgeInsets.zero;
+      case CardPadding.sm:
+        return const EdgeInsets.all(12);
+      case CardPadding.md:
+        return const EdgeInsets.all(16);
+      case CardPadding.lg:
+        return const EdgeInsets.all(24);
+      case CardPadding.xl:
+        return const EdgeInsets.all(32);
+    }
+  }
+}
+
+/// Card variants matching web app
+enum CardVariant {
+  defaultVariant,
+  elevated,
+  outlined,
+  filled,
+}
+
+/// Card padding sizes matching web app
+enum CardPadding {
+  none,
+  sm,
+  md,
+  lg,
+  xl,
+}
+
+/// Card Header sub-component
+class CardHeader extends StatelessWidget {
+  final Widget child;
+  final EdgeInsets? padding;
+
+  const CardHeader({
+    super.key,
+    required this.child,
+    this.padding,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16).copyWith(top: 0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: actions!
-            .map((action) => Padding(
-                  padding: const EdgeInsets.only(left: 8),
-                  child: action,
-                ))
-            .toList(),
-      ),
+      padding: padding ?? const EdgeInsets.only(bottom: 16),
+      child: child,
     );
   }
 }
 
-/// Stat Card - for displaying statistics
-class StatCard extends StatelessWidget {
-  final String title;
-  final String value;
-  final IconData? icon;
-  final Color? iconColor;
-  final String? subtitle;
-  final String? trend;
-  final bool trendIsPositive;
-  final VoidCallback? onTap;
+/// Card Body sub-component
+class CardBody extends StatelessWidget {
+  final Widget child;
+  final EdgeInsets? padding;
 
-  const StatCard({
-    Key? key,
-    required this.title,
-    required this.value,
-    this.icon,
-    this.iconColor,
-    this.subtitle,
-    this.trend,
-    this.trendIsPositive = true,
-    this.onTap,
-  }) : super(key: key);
+  const CardBody({
+    super.key,
+    required this.child,
+    this.padding,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    return Padding(
+      padding: padding ?? EdgeInsets.zero,
+      child: child,
+    );
+  }
+}
 
-    return AppCard(
-      onTap: onTap,
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey.shade600,
-                ),
-              ),
-              if (icon != null)
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: (iconColor ?? theme.colorScheme.primary).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    icon,
-                    size: 20,
-                    color: iconColor ?? theme.colorScheme.primary,
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            value,
-            style: theme.textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          if (subtitle != null || trend != null) ...[
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                if (trend != null) ...[
-                  Icon(
-                    trendIsPositive ? Icons.trending_up : Icons.trending_down,
-                    size: 16,
-                    color: trendIsPositive ? Colors.green : Colors.red,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    trend!,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: trendIsPositive ? Colors.green : Colors.red,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  if (subtitle != null) const SizedBox(width: 8),
-                ],
-                if (subtitle != null)
-                  Expanded(
-                    child: Text(
-                      subtitle!,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ],
-        ],
-      ),
+/// Card Footer sub-component
+class CardFooter extends StatelessWidget {
+  final Widget child;
+  final EdgeInsets? padding;
+
+  const CardFooter({
+    super.key,
+    required this.child,
+    this.padding,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: padding ?? const EdgeInsets.only(top: 16),
+      child: child,
     );
   }
 }

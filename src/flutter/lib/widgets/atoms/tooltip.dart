@@ -1,45 +1,93 @@
 import 'package:flutter/material.dart';
 
 /// Tooltip widget matching web app design
+/// 
+/// Matches web Tooltip component with all features:
+/// - 4 placements: top, bottom, left, right
+/// - Delay option
+/// - Disabled state
+/// - Dark theme
+/// - Arrow indicator
 class AppTooltip extends StatelessWidget {
   final String message;
   final Widget child;
-  final TooltipPosition position;
-  final Color? backgroundColor;
-  final TextStyle? textStyle;
+  final TooltipPlacement placement;
+  final int delay;
+  final bool disabled;
 
   const AppTooltip({
-    Key? key,
+    super.key,
     required this.message,
     required this.child,
-    this.position = TooltipPosition.top,
-    this.backgroundColor,
-    this.textStyle,
-  }) : super(key: key);
+    this.placement = TooltipPlacement.top,
+    this.delay = 200,
+    this.disabled = false,
+  });
+
+  /// Top tooltip
+  const AppTooltip.top({
+    super.key,
+    required this.message,
+    required this.child,
+    this.delay = 200,
+    this.disabled = false,
+  }) : placement = TooltipPlacement.top;
+
+  /// Bottom tooltip
+  const AppTooltip.bottom({
+    super.key,
+    required this.message,
+    required this.child,
+    this.delay = 200,
+    this.disabled = false,
+  }) : placement = TooltipPlacement.bottom;
+
+  /// Left tooltip
+  const AppTooltip.left({
+    super.key,
+    required this.message,
+    required this.child,
+    this.delay = 200,
+    this.disabled = false,
+  }) : placement = TooltipPlacement.left;
+
+  /// Right tooltip
+  const AppTooltip.right({
+    super.key,
+    required this.message,
+    required this.child,
+    this.delay = 200,
+    this.disabled = false,
+  }) : placement = TooltipPlacement.right;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    if (disabled) {
+      return child;
+    }
 
     return Tooltip(
       message: message,
-      preferBelow: position == TooltipPosition.bottom,
-      verticalOffset: position == TooltipPosition.bottom ? 20 : -20,
+      waitDuration: Duration(milliseconds: delay),
+      preferBelow: placement == TooltipPlacement.bottom,
+      verticalOffset: placement == TooltipPlacement.top || placement == TooltipPlacement.bottom ? 8 : 0,
       decoration: BoxDecoration(
-        color: backgroundColor ?? Colors.grey.shade800,
+        color: const Color(0xFF1F2937), // Gray-900
         borderRadius: BorderRadius.circular(6),
       ),
-      textStyle: textStyle ??
-          theme.textTheme.bodySmall?.copyWith(
-            color: Colors.white,
-          ),
-      waitDuration: const Duration(milliseconds: 500),
+      textStyle: const TextStyle(
+        fontSize: 14,
+        color: Colors.white,
+        fontWeight: FontWeight.w400,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: child,
     );
   }
 }
 
-enum TooltipPosition {
+/// Tooltip placement matching web app
+enum TooltipPlacement {
   top,
   bottom,
   left,

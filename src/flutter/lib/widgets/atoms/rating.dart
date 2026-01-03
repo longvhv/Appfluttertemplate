@@ -1,175 +1,165 @@
 import 'package:flutter/material.dart';
 
 /// Rating widget matching web app design
-class AppRating extends StatelessWidget {
+/// 
+/// Matches web Rating component with all features:
+/// - 3 sizes: sm, md, lg
+/// - Interactive/readonly modes
+/// - Show value option
+/// - Custom max rating
+/// - Custom colors
+class AppRating extends StatefulWidget {
   final double value;
   final ValueChanged<double>? onChanged;
-  final int maxRating;
-  final double size;
+  final int max;
+  final bool readonly;
+  final RatingSize size;
+  final bool showValue;
   final Color? color;
-  final Color? unratedColor;
-  final IconData? icon;
-  final bool allowHalfRating;
-  final bool readOnly;
+  final Color? emptyColor;
 
   const AppRating({
-    Key? key,
+    super.key,
     required this.value,
     this.onChanged,
-    this.maxRating = 5,
-    this.size = 24,
+    this.max = 5,
+    this.readonly = false,
+    this.size = RatingSize.md,
+    this.showValue = false,
     this.color,
-    this.unratedColor,
-    this.icon,
-    this.allowHalfRating = false,
-    this.readOnly = false,
-  }) : super(key: key);
+    this.emptyColor,
+  });
+
+  /// Small rating
+  const AppRating.sm({
+    super.key,
+    required this.value,
+    this.onChanged,
+    this.max = 5,
+    this.readonly = false,
+    this.showValue = false,
+    this.color,
+    this.emptyColor,
+  }) : size = RatingSize.sm;
+
+  /// Medium rating
+  const AppRating.md({
+    super.key,
+    required this.value,
+    this.onChanged,
+    this.max = 5,
+    this.readonly = false,
+    this.showValue = false,
+    this.color,
+    this.emptyColor,
+  }) : size = RatingSize.md;
+
+  /// Large rating
+  const AppRating.lg({
+    super.key,
+    required this.value,
+    this.onChanged,
+    this.max = 5,
+    this.readonly = false,
+    this.showValue = false,
+    this.color,
+    this.emptyColor,
+  }) : size = RatingSize.lg;
+
+  @override
+  State<AppRating> createState() => _AppRatingState();
+}
+
+class _AppRatingState extends State<AppRating> {
+  double? _hoverValue;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final activeColor = color ?? Colors.amber;
-    final inactiveColor = unratedColor ?? Colors.grey.shade300;
-    final starIcon = icon ?? Icons.star;
+    final colorScheme = theme.colorScheme;
+    final isInteractive = !widget.readonly && widget.onChanged != null;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
-      children: List.generate(maxRating, (index) {
-        final starValue = index + 1;
-        final fillPercentage = _calculateFillPercentage(starValue);
+      children: [
+        // Rating stars
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: List.generate(widget.max, (index) {
+            final displayValue = _hoverValue ?? widget.value;
+            final isFilled = displayValue >= (index + 1);
+            final isHalfFilled = displayValue > index && displayValue < (index + 1);
 
-        return GestureDetector(
-          onTap: readOnly
-              ? null
-              : () {
-                  if (onChanged != null) {
-                    onChanged!(starValue.toDouble());
-                  }
-                },
-          child: Stack(
-            children: [
-              // Background (unfilled) star
-              Icon(
-                starIcon,
-                size: size,
-                color: inactiveColor,
-              ),
-              // Foreground (filled) star with clip
-              if (fillPercentage > 0)
-                ClipRect(
-                  clipper: _StarClipper(fillPercentage),
+            return GestureDetector(
+              onTap: isInteractive
+                  ? () {
+                      widget.onChanged!(index + 1.0);
+                      setState(() => _hoverValue = null);
+                    }
+                  : null,
+              child: MouseRegion(
+                onEnter: isInteractive
+                    ? (_) => setState(() => _hoverValue = index + 1.0)
+                    : null,
+                onExit: isInteractive ? (_) => setState(() => _hoverValue = null) : null,
+                cursor: isInteractive ? SystemMouseCursors.click : SystemMouseCursors.basic,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 2),
                   child: Icon(
-                    starIcon,
-                    size: size,
-                    color: activeColor,
+                    isFilled || isHalfFilled ? Icons.star : Icons.star_border,
+                    size: _getIconSize(),
+                    color: isFilled || isHalfFilled
+                        ? (widget.color ?? const Color(0xFFFBBF24)) // Yellow-400
+                        : (widget.emptyColor ?? colorScheme.outline),
                   ),
                 ),
-            ],
+              ),
+            );
+          }),
+        ),
+
+        // Show value
+        if (widget.showValue) ...[
+          const SizedBox(width: 8),
+          Text(
+            widget.value.toStringAsFixed(1),
+            style: TextStyle(
+              fontSize: _getTextSize(),
+              fontWeight: FontWeight.w600,
+              color: colorScheme.onSurface,
+            ),
           ),
-        );
-      }),
+        ],
+      ],
     );
   }
 
-  double _calculateFillPercentage(int starValue) {
-    if (value >= starValue) {
-      return 1.0;
-    } else if (allowHalfRating && value > starValue - 1) {
-      return value - (starValue - 1);
+  double _getIconSize() {
+    switch (widget.size) {
+      case RatingSize.sm:
+        return 16;
+      case RatingSize.md:
+        return 24;
+      case RatingSize.lg:
+        return 32;
     }
-    return 0.0;
+  }
+
+  double _getTextSize() {
+    switch (widget.size) {
+      case RatingSize.sm:
+        return 12;
+      case RatingSize.md:
+        return 14;
+      case RatingSize.lg:
+        return 16;
+    }
   }
 }
 
-class _StarClipper extends CustomClipper<Rect> {
-  final double fillPercentage;
-
-  _StarClipper(this.fillPercentage);
-
-  @override
-  Rect getClip(Size size) {
-    return Rect.fromLTWH(0, 0, size.width * fillPercentage, size.height);
-  }
-
-  @override
-  bool shouldReclip(_StarClipper oldClipper) {
-    return fillPercentage != oldClipper.fillPercentage;
-  }
-}
-
-/// Rating input with interaction
-class RatingInput extends StatefulWidget {
-  final double initialValue;
-  final ValueChanged<double> onChanged;
-  final int maxRating;
-  final double size;
-  final Color? color;
-  final bool allowHalfRating;
-
-  const RatingInput({
-    Key? key,
-    this.initialValue = 0,
-    required this.onChanged,
-    this.maxRating = 5,
-    this.size = 32,
-    this.color,
-    this.allowHalfRating = true,
-  }) : super(key: key);
-
-  @override
-  State<RatingInput> createState() => _RatingInputState();
-}
-
-class _RatingInputState extends State<RatingInput> {
-  late double _currentValue;
-
-  @override
-  void initState() {
-    super.initState();
-    _currentValue = widget.initialValue;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: List.generate(widget.maxRating, (index) {
-        final starValue = index + 1;
-
-        return GestureDetector(
-          onTap: () {
-            setState(() {
-              _currentValue = starValue.toDouble();
-            });
-            widget.onChanged(_currentValue);
-          },
-          onPanUpdate: widget.allowHalfRating
-              ? (details) {
-                  final RenderBox box = context.findRenderObject() as RenderBox;
-                  final position = box.globalToLocal(details.globalPosition);
-                  final starWidth = box.size.width / widget.maxRating;
-                  final newValue = (position.dx / starWidth).clamp(0, widget.maxRating.toDouble());
-                  
-                  if (widget.allowHalfRating) {
-                    final roundedValue = (newValue * 2).round() / 2;
-                    if (roundedValue != _currentValue) {
-                      setState(() {
-                        _currentValue = roundedValue;
-                      });
-                      widget.onChanged(_currentValue);
-                    }
-                  }
-                }
-              : null,
-          child: Icon(
-            Icons.star,
-            size: widget.size,
-            color: _currentValue >= starValue
-                ? (widget.color ?? Colors.amber)
-                : Colors.grey.shade300,
-          ),
-        );
-      }),
-    );
-  }
+/// Rating sizes matching web app
+enum RatingSize {
+  sm,
+  md,
+  lg,
 }

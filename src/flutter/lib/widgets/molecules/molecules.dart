@@ -1,12 +1,24 @@
-// Molecules
+/// Barrel file for all molecule widgets
+library;
+
 export 'accordion.dart';
 export 'autocomplete.dart';
+export 'avatar_group.dart';
 export 'breadcrumbs.dart';
 export 'card.dart';
+export 'chip_input.dart';
+export 'color_input.dart';
+export 'combo_box.dart';
+export 'credit_card_input.dart';
 export 'date_picker.dart';
+export 'date_range_input.dart';
+export 'datetime_input.dart';
 export 'dropdown_menu.dart';
+export 'duration_input.dart';
 export 'empty_state.dart';
 export 'file_upload.dart';
+export 'floating_action_button.dart';
+export 'form_field.dart';
 export 'list_item.dart';
 export 'multi_select.dart';
 export 'navbar.dart';
@@ -17,11 +29,19 @@ export 'password_input.dart';
 export 'phone_input.dart';
 export 'popover.dart';
 export 'progress_indicator.dart';
+export 'progress_steps.dart';
 export 'quick_actions.dart';
+export 'radio_group.dart';
+export 'rating_input.dart';
 export 'search_bar.dart';
 export 'segmented_control.dart';
+export 'select.dart';
+export 'slider_input.dart';
+export 'stats_card.dart';
 export 'stepper.dart';
 export 'tabs.dart';
+export 'tag_input.dart';
+export 'time_input.dart';
 export 'timeline.dart';
 export 'toast.dart';
 export 'toggle_group.dart';

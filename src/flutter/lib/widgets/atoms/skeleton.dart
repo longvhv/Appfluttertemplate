@@ -1,119 +1,289 @@
 import 'package:flutter/material.dart';
 
-/// Skeleton loader widget for loading states
-class AppSkeleton extends StatelessWidget {
+/// Skeleton widget matching web app design
+/// 
+/// Matches web Skeleton component with all features:
+/// - 4 variants: text, circular, rectangular, rounded
+/// - 3 animations: pulse, wave, none
+/// - Custom width/height
+/// - Pre-built patterns (text, avatar, card, button, list)
+class AppSkeleton extends StatefulWidget {
+  final SkeletonVariant variant;
   final double? width;
   final double? height;
-  final SkeletonShape shape;
-  final BorderRadius? borderRadius;
+  final SkeletonAnimation animation;
 
   const AppSkeleton({
-    Key? key,
+    super.key,
+    this.variant = SkeletonVariant.text,
     this.width,
     this.height,
-    this.shape = SkeletonShape.rectangle,
-    this.borderRadius,
-  }) : super(key: key);
+    this.animation = SkeletonAnimation.pulse,
+  });
+
+  /// Text skeleton
+  const AppSkeleton.text({
+    super.key,
+    this.width,
+    this.height,
+    this.animation = SkeletonAnimation.pulse,
+  }) : variant = SkeletonVariant.text;
+
+  /// Circular skeleton (for avatars)
+  const AppSkeleton.circular({
+    super.key,
+    this.width,
+    this.height,
+    this.animation = SkeletonAnimation.pulse,
+  }) : variant = SkeletonVariant.circular;
+
+  /// Rectangular skeleton
+  const AppSkeleton.rectangular({
+    super.key,
+    this.width,
+    this.height,
+    this.animation = SkeletonAnimation.pulse,
+  }) : variant = SkeletonVariant.rectangular;
+
+  /// Rounded skeleton
+  const AppSkeleton.rounded({
+    super.key,
+    this.width,
+    this.height,
+    this.animation = SkeletonAnimation.pulse,
+  }) : variant = SkeletonVariant.rounded;
+
+  @override
+  State<AppSkeleton> createState() => _AppSkeletonState();
+}
+
+class _AppSkeletonState extends State<AppSkeleton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+
+    if (widget.animation != SkeletonAnimation.none) {
+      _animation = Tween<double>(begin: 0.5, end: 1.0).animate(
+        CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+      );
+      _controller.repeat(reverse: true);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final baseColor = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
-    final highlightColor = isDark ? Colors.grey.shade700 : Colors.grey.shade100;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
-    Widget skeleton = Container(
+    final width = widget.width ?? _getDefaultWidth();
+    final height = widget.height ?? _getDefaultHeight();
+
+    if (widget.animation == SkeletonAnimation.none) {
+      return _buildSkeleton(colorScheme, width, height, 1.0);
+    }
+
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        return _buildSkeleton(colorScheme, width, height, _animation.value);
+      },
+    );
+  }
+
+  Widget _buildSkeleton(
+    ColorScheme colorScheme,
+    double width,
+    double height,
+    double opacity,
+  ) {
+    return Container(
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: baseColor,
+        color: colorScheme.surfaceVariant.withOpacity(opacity),
         borderRadius: _getBorderRadius(),
-        shape: shape == SkeletonShape.circle ? BoxShape.circle : BoxShape.rectangle,
       ),
     );
+  }
 
-    // Add shimmer effect
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 1000),
-      child: ShaderMask(
-        shaderCallback: (bounds) {
-          return LinearGradient(
-            colors: [baseColor, highlightColor, baseColor],
-            stops: const [0.0, 0.5, 1.0],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ).createShader(bounds);
-        },
-        child: skeleton,
-      ),
-    );
+  double _getDefaultWidth() {
+    switch (widget.variant) {
+      case SkeletonVariant.text:
+        return double.infinity;
+      case SkeletonVariant.circular:
+        return 48;
+      case SkeletonVariant.rectangular:
+        return double.infinity;
+      case SkeletonVariant.rounded:
+        return double.infinity;
+    }
+  }
+
+  double _getDefaultHeight() {
+    switch (widget.variant) {
+      case SkeletonVariant.text:
+        return 16;
+      case SkeletonVariant.circular:
+        return 48;
+      case SkeletonVariant.rectangular:
+        return 48;
+      case SkeletonVariant.rounded:
+        return 48;
+    }
   }
 
   BorderRadius? _getBorderRadius() {
-    if (shape == SkeletonShape.circle) return null;
-    if (borderRadius != null) return borderRadius;
-    return BorderRadius.circular(4);
+    switch (widget.variant) {
+      case SkeletonVariant.text:
+        return BorderRadius.circular(4);
+      case SkeletonVariant.circular:
+        return BorderRadius.circular(1000);
+      case SkeletonVariant.rectangular:
+        return null;
+      case SkeletonVariant.rounded:
+        return BorderRadius.circular(12);
+    }
   }
 }
 
-enum SkeletonShape {
-  rectangle,
-  circle,
-}
+/// Pre-built skeleton patterns
 
-/// Pre-defined skeleton loaders
-class SkeletonLoaders {
-  /// Text line skeleton
-  static Widget text({
-    double? width,
-    double height = 16,
-  }) {
-    return AppSkeleton(
-      width: width,
-      height: height,
-      shape: SkeletonShape.rectangle,
-      borderRadius: BorderRadius.circular(4),
+/// Text skeleton with multiple lines
+class SkeletonText extends StatelessWidget {
+  final int lines;
+  final double? lastLineWidth;
+
+  const SkeletonText({
+    super.key,
+    this.lines = 3,
+    this.lastLineWidth,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: List.generate(lines, (index) {
+        final isLastLine = index == lines - 1;
+        return Padding(
+          padding: EdgeInsets.only(bottom: index < lines - 1 ? 8 : 0),
+          child: AppSkeleton.text(
+            width: isLastLine && lastLineWidth != null ? lastLineWidth : null,
+            height: 16,
+          ),
+        );
+      }),
     );
   }
+}
 
-  /// Avatar skeleton
-  static Widget avatar({
-    double size = 40,
-  }) {
-    return AppSkeleton(
+/// Avatar skeleton
+class SkeletonAvatar extends StatelessWidget {
+  final double size;
+
+  const SkeletonAvatar({
+    super.key,
+    this.size = 40,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AppSkeleton.circular(
       width: size,
       height: size,
-      shape: SkeletonShape.circle,
     );
   }
+}
 
-  /// Card skeleton
-  static Widget card({
-    double? width,
-    double height = 200,
-  }) {
-    return AppSkeleton(
-      width: width,
-      height: height,
-      shape: SkeletonShape.rectangle,
-      borderRadius: BorderRadius.circular(12),
+/// Card skeleton
+class SkeletonCard extends StatelessWidget {
+  final bool showImage;
+  final bool showTitle;
+  final bool showDescription;
+
+  const SkeletonCard({
+    super.key,
+    this.showImage = true,
+    this.showTitle = true,
+    this.showDescription = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (showImage)
+          const AppSkeleton.rounded(
+            width: double.infinity,
+            height: 200,
+          ),
+        if (showImage) const SizedBox(height: 16),
+        if (showTitle)
+          const AppSkeleton.text(
+            width: 200,
+            height: 24,
+          ),
+        if (showTitle && showDescription) const SizedBox(height: 8),
+        if (showDescription) const SkeletonText(lines: 2),
+      ],
     );
   }
+}
 
-  /// List item skeleton
-  static Widget listItem() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+/// Button skeleton
+class SkeletonButton extends StatelessWidget {
+  final double? width;
+  final double? height;
+
+  const SkeletonButton({
+    super.key,
+    this.width,
+    this.height,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AppSkeleton.rounded(
+      width: width ?? 96,
+      height: height ?? 40,
+    );
+  }
+}
+
+/// List item skeleton
+class SkeletonListItem extends StatelessWidget {
+  const SkeletonListItem({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
-          avatar(size: 48),
-          const SizedBox(width: 12),
+          SkeletonAvatar(size: 48),
+          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                text(width: double.infinity, height: 16),
-                const SizedBox(height: 8),
-                text(width: 200, height: 14),
+                AppSkeleton.text(width: 150, height: 16),
+                SizedBox(height: 8),
+                AppSkeleton.text(width: 100, height: 12),
               ],
             ),
           ),
@@ -121,17 +291,19 @@ class SkeletonLoaders {
       ),
     );
   }
+}
 
-  /// Profile skeleton
-  static Widget profile() {
-    return Column(
-      children: [
-        avatar(size: 80),
-        const SizedBox(height: 16),
-        text(width: 150, height: 20),
-        const SizedBox(height: 8),
-        text(width: 200, height: 16),
-      ],
-    );
-  }
+/// Skeleton variants matching web app
+enum SkeletonVariant {
+  text,
+  circular,
+  rectangular,
+  rounded,
+}
+
+/// Skeleton animations matching web app
+enum SkeletonAnimation {
+  pulse,
+  wave,
+  none,
 }

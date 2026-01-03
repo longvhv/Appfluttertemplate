@@ -1,69 +1,155 @@
 import 'package:flutter/material.dart';
 
-/// Chip widget for tags, labels, and selections
+/// Chip widget matching web app design
+/// 
+/// Matches web Chip component with all features:
+/// - 6 variants: default, primary, success, warning, error, info
+/// - 3 sizes: sm, md, lg
+/// - Icon support
+/// - Avatar support
+/// - Remove button
+/// - Clickable
 class AppChip extends StatelessWidget {
   final String label;
-  final IconData? icon;
-  final VoidCallback? onTap;
-  final VoidCallback? onDelete;
   final ChipVariant variant;
   final ChipSize size;
-  final Color? backgroundColor;
-  final Color? textColor;
-  final bool selected;
+  final VoidCallback? onRemove;
+  final IconData? icon;
+  final String? avatar;
+  final bool clickable;
+  final VoidCallback? onClick;
 
   const AppChip({
-    Key? key,
+    super.key,
     required this.label,
+    this.variant = ChipVariant.defaultVariant,
+    this.size = ChipSize.md,
+    this.onRemove,
     this.icon,
-    this.onTap,
-    this.onDelete,
-    this.variant = ChipVariant.primary,
-    this.size = ChipSize.medium,
-    this.backgroundColor,
-    this.textColor,
-    this.selected = false,
-  }) : super(key: key);
+    this.avatar,
+    this.clickable = false,
+    this.onClick,
+  });
+
+  /// Default chip
+  const AppChip.defaultVariant({
+    super.key,
+    required this.label,
+    this.size = ChipSize.md,
+    this.onRemove,
+    this.icon,
+    this.avatar,
+    this.clickable = false,
+    this.onClick,
+  }) : variant = ChipVariant.defaultVariant;
+
+  /// Primary chip
+  const AppChip.primary({
+    super.key,
+    required this.label,
+    this.size = ChipSize.md,
+    this.onRemove,
+    this.icon,
+    this.avatar,
+    this.clickable = false,
+    this.onClick,
+  }) : variant = ChipVariant.primary;
+
+  /// Success chip
+  const AppChip.success({
+    super.key,
+    required this.label,
+    this.size = ChipSize.md,
+    this.onRemove,
+    this.icon,
+    this.avatar,
+    this.clickable = false,
+    this.onClick,
+  }) : variant = ChipVariant.success;
+
+  /// Warning chip
+  const AppChip.warning({
+    super.key,
+    required this.label,
+    this.size = ChipSize.md,
+    this.onRemove,
+    this.icon,
+    this.avatar,
+    this.clickable = false,
+    this.onClick,
+  }) : variant = ChipVariant.warning;
+
+  /// Error chip
+  const AppChip.error({
+    super.key,
+    required this.label,
+    this.size = ChipSize.md,
+    this.onRemove,
+    this.icon,
+    this.avatar,
+    this.clickable = false,
+    this.onClick,
+  }) : variant = ChipVariant.error;
+
+  /// Info chip
+  const AppChip.info({
+    super.key,
+    required this.label,
+    this.size = ChipSize.md,
+    this.onRemove,
+    this.icon,
+    this.avatar,
+    this.clickable = false,
+    this.onClick,
+  }) : variant = ChipVariant.info;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+    final colorScheme = theme.colorScheme;
+
     return Material(
-      color: _getBackgroundColor(theme),
+      color: _getBackgroundColor(colorScheme),
       borderRadius: BorderRadius.circular(100),
       child: InkWell(
-        onTap: onTap,
+        onTap: clickable || onClick != null ? onClick : null,
         borderRadius: BorderRadius.circular(100),
         child: Container(
           padding: _getPadding(),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              if (avatar != null) ...[
+                CircleAvatar(
+                  radius: _getAvatarSize() / 2,
+                  backgroundImage: NetworkImage(avatar!),
+                ),
+                SizedBox(width: _getGap()),
+              ],
               if (icon != null) ...[
                 Icon(
                   icon,
                   size: _getIconSize(),
-                  color: _getTextColor(theme),
+                  color: _getTextColor(colorScheme),
                 ),
-                SizedBox(width: size == ChipSize.small ? 4 : 6),
+                SizedBox(width: _getGap()),
               ],
               Text(
                 label,
                 style: TextStyle(
-                  color: _getTextColor(theme),
                   fontSize: _getFontSize(),
-                  fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                  fontWeight: FontWeight.w500,
+                  color: _getTextColor(colorScheme),
                 ),
               ),
-              if (onDelete != null) ...[
-                SizedBox(width: size == ChipSize.small ? 4 : 6),
+              if (onRemove != null) ...[
+                SizedBox(width: _getGap()),
                 GestureDetector(
-                  onTap: onDelete,
+                  onTap: onRemove,
                   child: Icon(
                     Icons.close,
                     size: _getIconSize(),
-                    color: _getTextColor(theme),
+                    color: _getTextColor(colorScheme),
                   ),
                 ),
               ],
@@ -74,180 +160,109 @@ class AppChip extends StatelessWidget {
     );
   }
 
-  Color _getBackgroundColor(ThemeData theme) {
-    if (backgroundColor != null) return backgroundColor!;
-
-    if (selected) {
-      switch (variant) {
-        case ChipVariant.primary:
-          return theme.colorScheme.primary;
-        case ChipVariant.secondary:
-          return theme.colorScheme.secondary;
-        case ChipVariant.success:
-          return Colors.green;
-        case ChipVariant.warning:
-          return Colors.orange;
-        case ChipVariant.error:
-          return Colors.red;
-        case ChipVariant.neutral:
-          return Colors.grey;
-      }
+  Color _getBackgroundColor(ColorScheme colorScheme) {
+    switch (variant) {
+      case ChipVariant.defaultVariant:
+        return const Color(0xFFF3F4F6); // Gray-100
+      case ChipVariant.primary:
+        return const Color(0xFFEEF2FF); // Indigo-100
+      case ChipVariant.success:
+        return const Color(0xFFDCFCE7); // Green-100
+      case ChipVariant.warning:
+        return const Color(0xFFFEF3C7); // Yellow-100
+      case ChipVariant.error:
+        return const Color(0xFFFEE2E2); // Red-100
+      case ChipVariant.info:
+        return const Color(0xFFDBEAFE); // Blue-100
     }
-
-    return theme.colorScheme.primary.withOpacity(0.1);
   }
 
-  Color _getTextColor(ThemeData theme) {
-    if (textColor != null) return textColor!;
-
-    if (selected) {
-      return Colors.white;
-    }
-
+  Color _getTextColor(ColorScheme colorScheme) {
     switch (variant) {
+      case ChipVariant.defaultVariant:
+        return const Color(0xFF374151); // Gray-700
       case ChipVariant.primary:
-        return theme.colorScheme.primary;
-      case ChipVariant.secondary:
-        return theme.colorScheme.secondary;
+        return const Color(0xFF4338CA); // Indigo-700
       case ChipVariant.success:
-        return Colors.green;
+        return const Color(0xFF15803D); // Green-700
       case ChipVariant.warning:
-        return Colors.orange;
+        return const Color(0xFFA16207); // Yellow-700
       case ChipVariant.error:
-        return Colors.red;
-      case ChipVariant.neutral:
-        return Colors.grey.shade700;
+        return const Color(0xFFB91C1C); // Red-700
+      case ChipVariant.info:
+        return const Color(0xFF1D4ED8); // Blue-700
     }
   }
 
   EdgeInsets _getPadding() {
     switch (size) {
-      case ChipSize.small:
-        return const EdgeInsets.symmetric(horizontal: 8, vertical: 4);
-      case ChipSize.medium:
-        return const EdgeInsets.symmetric(horizontal: 12, vertical: 6);
-      case ChipSize.large:
+      case ChipSize.sm:
+        return const EdgeInsets.symmetric(horizontal: 8, vertical: 2);
+      case ChipSize.md:
+        return const EdgeInsets.symmetric(horizontal: 12, vertical: 4);
+      case ChipSize.lg:
         return const EdgeInsets.symmetric(horizontal: 16, vertical: 8);
     }
   }
 
   double _getFontSize() {
     switch (size) {
-      case ChipSize.small:
+      case ChipSize.sm:
         return 12;
-      case ChipSize.medium:
+      case ChipSize.md:
         return 14;
-      case ChipSize.large:
+      case ChipSize.lg:
         return 16;
     }
   }
 
   double _getIconSize() {
     switch (size) {
-      case ChipSize.small:
-        return 14;
-      case ChipSize.medium:
+      case ChipSize.sm:
+        return 12;
+      case ChipSize.md:
         return 16;
-      case ChipSize.large:
-        return 18;
+      case ChipSize.lg:
+        return 20;
+    }
+  }
+
+  double _getAvatarSize() {
+    switch (size) {
+      case ChipSize.sm:
+        return 16;
+      case ChipSize.md:
+        return 20;
+      case ChipSize.lg:
+        return 24;
+    }
+  }
+
+  double _getGap() {
+    switch (size) {
+      case ChipSize.sm:
+        return 4;
+      case ChipSize.md:
+        return 6;
+      case ChipSize.lg:
+        return 8;
     }
   }
 }
 
+/// Chip variants matching web app
 enum ChipVariant {
+  defaultVariant,
   primary,
-  secondary,
   success,
   warning,
   error,
-  neutral,
+  info,
 }
 
+/// Chip sizes matching web app
 enum ChipSize {
-  small,
-  medium,
-  large,
-}
-
-/// Chip Input - for adding/removing multiple chips
-class ChipInput extends StatefulWidget {
-  final List<String> values;
-  final ValueChanged<List<String>> onChanged;
-  final String? hintText;
-  final int? maxChips;
-
-  const ChipInput({
-    Key? key,
-    required this.values,
-    required this.onChanged,
-    this.hintText,
-    this.maxChips,
-  }) : super(key: key);
-
-  @override
-  State<ChipInput> createState() => _ChipInputState();
-}
-
-class _ChipInputState extends State<ChipInput> {
-  final _controller = TextEditingController();
-  final _focusNode = FocusNode();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      padding: const EdgeInsets.all(8),
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: [
-          ...widget.values.map((value) => AppChip(
-                label: value,
-                size: ChipSize.small,
-                onDelete: () {
-                  final newValues = List<String>.from(widget.values);
-                  newValues.remove(value);
-                  widget.onChanged(newValues);
-                },
-              )),
-          if (widget.maxChips == null || widget.values.length < widget.maxChips!)
-            SizedBox(
-              width: 120,
-              child: TextField(
-                controller: _controller,
-                focusNode: _focusNode,
-                decoration: InputDecoration(
-                  hintText: widget.hintText ?? 'Add...',
-                  border: InputBorder.none,
-                  isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                ),
-                onSubmitted: (value) {
-                  if (value.isNotEmpty) {
-                    final newValues = List<String>.from(widget.values);
-                    newValues.add(value);
-                    widget.onChanged(newValues);
-                    _controller.clear();
-                    _focusNode.requestFocus();
-                  }
-                },
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    _focusNode.dispose();
-    super.dispose();
-  }
+  sm,
+  md,
+  lg,
 }

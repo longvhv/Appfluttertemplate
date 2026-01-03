@@ -1,104 +1,133 @@
 import 'package:flutter/material.dart';
 
-/// Custom checkbox widget matching web app design
+/// Checkbox widget matching web app design
+/// 
+/// Matches web Checkbox component with all features:
+/// - 3 sizes: sm, md, lg
+/// - Label and description support
+/// - Error state
+/// - Disabled state
+/// - Custom colors
+/// - Animations
 class AppCheckbox extends StatelessWidget {
-  final bool value;
-  final ValueChanged<bool?>? onChanged;
-  final Color? activeColor;
+  final bool checked;
+  final ValueChanged<bool>? onChanged;
+  final String? label;
+  final String? description;
+  final bool disabled;
   final CheckboxSize size;
-  final bool tristate;
+  final String? error;
+  final Color? activeColor;
+  final Color? checkColor;
 
   const AppCheckbox({
-    Key? key,
-    required this.value,
+    super.key,
+    required this.checked,
     this.onChanged,
+    this.label,
+    this.description,
+    this.disabled = false,
+    this.size = CheckboxSize.md,
+    this.error,
     this.activeColor,
-    this.size = CheckboxSize.medium,
-    this.tristate = false,
-  }) : super(key: key);
+    this.checkColor,
+  });
+
+  /// Small checkbox
+  const AppCheckbox.sm({
+    super.key,
+    required this.checked,
+    this.onChanged,
+    this.label,
+    this.description,
+    this.disabled = false,
+    this.error,
+    this.activeColor,
+    this.checkColor,
+  }) : size = CheckboxSize.sm;
+
+  /// Medium checkbox
+  const AppCheckbox.md({
+    super.key,
+    required this.checked,
+    this.onChanged,
+    this.label,
+    this.description,
+    this.disabled = false,
+    this.error,
+    this.activeColor,
+    this.checkColor,
+  }) : size = CheckboxSize.md;
+
+  /// Large checkbox
+  const AppCheckbox.lg({
+    super.key,
+    required this.checked,
+    this.onChanged,
+    this.label,
+    this.description,
+    this.disabled = false,
+    this.error,
+    this.activeColor,
+    this.checkColor,
+  }) : size = CheckboxSize.lg;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final scale = _getScale();
+    final colorScheme = theme.colorScheme;
 
-    return Transform.scale(
-      scale: scale,
-      child: Checkbox(
-        value: value,
-        onChanged: onChanged,
-        activeColor: activeColor ?? theme.colorScheme.primary,
-        tristate: tristate,
-      ),
-    );
-  }
-
-  double _getScale() {
-    switch (size) {
-      case CheckboxSize.small:
-        return 0.8;
-      case CheckboxSize.medium:
-        return 1.0;
-      case CheckboxSize.large:
-        return 1.2;
+    // If no label/description, return checkbox only
+    if (label == null && description == null) {
+      return _buildCheckbox(colorScheme);
     }
-  }
-}
 
-enum CheckboxSize {
-  small,
-  medium,
-  large,
-}
-
-/// Checkbox with label
-class LabeledCheckbox extends StatelessWidget {
-  final String label;
-  final String? subtitle;
-  final bool value;
-  final ValueChanged<bool?>? onChanged;
-  final Color? activeColor;
-
-  const LabeledCheckbox({
-    Key? key,
-    required this.label,
-    this.subtitle,
-    required this.value,
-    this.onChanged,
-    this.activeColor,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
+    // Return checkbox with label
     return InkWell(
-      onTap: onChanged != null ? () => onChanged!(!value) : null,
+      onTap: disabled || onChanged == null ? null : () => onChanged!(!checked),
+      borderRadius: BorderRadius.circular(8),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        padding: const EdgeInsets.symmetric(vertical: 4),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AppCheckbox(
-              value: value,
-              onChanged: onChanged,
-              activeColor: activeColor,
-            ),
+            _buildCheckbox(colorScheme),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    label,
-                    style: theme.textTheme.bodyLarge,
-                  ),
-                  if (subtitle != null) ...[
+                  if (label != null)
+                    Text(
+                      label!,
+                      style: TextStyle(
+                        fontSize: _getLabelFontSize(),
+                        color: disabled
+                            ? colorScheme.onSurface.withOpacity(0.5)
+                            : colorScheme.onSurface,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  if (description != null) ...[
                     const SizedBox(height: 4),
                     Text(
-                      subtitle!,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.grey.shade600,
+                      description!,
+                      style: TextStyle(
+                        fontSize: _getDescriptionFontSize(),
+                        color: disabled
+                            ? colorScheme.onSurfaceVariant.withOpacity(0.5)
+                            : colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                  if (error != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      error!,
+                      style: TextStyle(
+                        fontSize: _getDescriptionFontSize(),
+                        color: colorScheme.error,
                       ),
                     ),
                   ],
@@ -110,4 +139,107 @@ class LabeledCheckbox extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildCheckbox(ColorScheme colorScheme) {
+    final boxSize = _getBoxSize();
+    final checkSize = _getCheckSize();
+
+    return GestureDetector(
+      onTap: disabled || onChanged == null ? null : () => onChanged!(!checked),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: boxSize,
+        height: boxSize,
+        decoration: BoxDecoration(
+          color: _getBackgroundColor(colorScheme),
+          border: Border.all(
+            color: _getBorderColor(colorScheme),
+            width: 2,
+          ),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: checked
+            ? Icon(
+                Icons.check,
+                size: checkSize,
+                color: checkColor ?? Colors.white,
+              )
+            : null,
+      ),
+    );
+  }
+
+  Color _getBackgroundColor(ColorScheme colorScheme) {
+    if (disabled) {
+      return checked
+          ? (activeColor ?? const Color(0xFF6366F1)).withOpacity(0.5)
+          : colorScheme.surface.withOpacity(0.5);
+    }
+    return checked
+        ? (activeColor ?? const Color(0xFF6366F1))
+        : colorScheme.surface;
+  }
+
+  Color _getBorderColor(ColorScheme colorScheme) {
+    if (error != null) return colorScheme.error;
+    if (disabled) {
+      return checked
+          ? (activeColor ?? const Color(0xFF6366F1)).withOpacity(0.5)
+          : colorScheme.outline.withOpacity(0.5);
+    }
+    return checked
+        ? (activeColor ?? const Color(0xFF6366F1))
+        : colorScheme.outline;
+  }
+
+  double _getBoxSize() {
+    switch (size) {
+      case CheckboxSize.sm:
+        return 16;
+      case CheckboxSize.md:
+        return 20;
+      case CheckboxSize.lg:
+        return 24;
+    }
+  }
+
+  double _getCheckSize() {
+    switch (size) {
+      case CheckboxSize.sm:
+        return 12;
+      case CheckboxSize.md:
+        return 16;
+      case CheckboxSize.lg:
+        return 20;
+    }
+  }
+
+  double _getLabelFontSize() {
+    switch (size) {
+      case CheckboxSize.sm:
+        return 14;
+      case CheckboxSize.md:
+        return 16;
+      case CheckboxSize.lg:
+        return 18;
+    }
+  }
+
+  double _getDescriptionFontSize() {
+    switch (size) {
+      case CheckboxSize.sm:
+        return 12;
+      case CheckboxSize.md:
+        return 14;
+      case CheckboxSize.lg:
+        return 16;
+    }
+  }
+}
+
+/// Checkbox sizes matching web app
+enum CheckboxSize {
+  sm,
+  md,
+  lg,
 }

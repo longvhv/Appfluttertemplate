@@ -1,153 +1,252 @@
 import 'package:flutter/material.dart';
 
-/// Avatar widget with support for images, text, and icons
+/// Avatar widget matching web app design
+/// 
+/// Matches web Avatar component with all features:
+/// - 6 sizes: xs, sm, md, lg, xl, 2xl
+/// - Image with fallback
+/// - Text initials
+/// - Icon fallback
+/// - Badge support
+/// - Gradient background
 class AppAvatar extends StatelessWidget {
-  final String? imageUrl;
-  final String? text;
-  final IconData? icon;
-  final double size;
-  final Color? backgroundColor;
-  final Color? textColor;
+  final String? src;
+  final String? alt;
+  final String? name;
+  final AvatarSize size;
+  final Widget? fallback;
+  final Widget? badge;
   final VoidCallback? onTap;
-  final bool showBadge;
-  final Color? badgeColor;
-  final String? badgeText;
 
   const AppAvatar({
-    Key? key,
-    this.imageUrl,
-    this.text,
-    this.icon,
-    this.size = 40,
-    this.backgroundColor,
-    this.textColor,
+    super.key,
+    this.src,
+    this.alt,
+    this.name,
+    this.size = AvatarSize.md,
+    this.fallback,
+    this.badge,
     this.onTap,
-    this.showBadge = false,
-    this.badgeColor,
-    this.badgeText,
-  }) : super(key: key);
+  });
+
+  /// Extra small avatar
+  const AppAvatar.xs({
+    super.key,
+    this.src,
+    this.alt,
+    this.name,
+    this.fallback,
+    this.badge,
+    this.onTap,
+  }) : size = AvatarSize.xs;
+
+  /// Small avatar
+  const AppAvatar.sm({
+    super.key,
+    this.src,
+    this.alt,
+    this.name,
+    this.fallback,
+    this.badge,
+    this.onTap,
+  }) : size = AvatarSize.sm;
+
+  /// Medium avatar
+  const AppAvatar.md({
+    super.key,
+    this.src,
+    this.alt,
+    this.name,
+    this.fallback,
+    this.badge,
+    this.onTap,
+  }) : size = AvatarSize.md;
+
+  /// Large avatar
+  const AppAvatar.lg({
+    super.key,
+    this.src,
+    this.alt,
+    this.name,
+    this.fallback,
+    this.badge,
+    this.onTap,
+  }) : size = AvatarSize.lg;
+
+  /// Extra large avatar
+  const AppAvatar.xl({
+    super.key,
+    this.src,
+    this.alt,
+    this.name,
+    this.fallback,
+    this.badge,
+    this.onTap,
+  }) : size = AvatarSize.xl;
+
+  /// 2X large avatar
+  const AppAvatar.xxl({
+    super.key,
+    this.src,
+    this.alt,
+    this.name,
+    this.fallback,
+    this.badge,
+    this.onTap,
+  }) : size = AvatarSize.xxl;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final avatarSize = _getAvatarSize();
     
-    Widget avatar = CircleAvatar(
-      radius: size / 2,
-      backgroundColor: backgroundColor ?? theme.colorScheme.primary,
-      backgroundImage: imageUrl != null ? NetworkImage(imageUrl!) : null,
-      child: imageUrl == null
-          ? (icon != null
-              ? Icon(icon, size: size * 0.5, color: textColor ?? Colors.white)
-              : Text(
-                  text ?? '',
-                  style: TextStyle(
-                    fontSize: size * 0.4,
-                    color: textColor ?? Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ))
-          : null,
+    Widget avatarWidget = GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: avatarSize,
+        height: avatarSize,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: const LinearGradient(
+            colors: [
+              Color(0xFF6366F1), // Indigo
+              Color(0xFF8B5CF6), // Purple
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: ClipOval(
+          child: _buildContent(),
+        ),
+      ),
     );
 
-    if (showBadge) {
-      avatar = Stack(
+    // Add badge if provided
+    if (badge != null) {
+      avatarWidget = Stack(
         clipBehavior: Clip.none,
         children: [
-          avatar,
+          avatarWidget,
           Positioned(
-            right: 0,
-            bottom: 0,
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: badgeColor ?? Colors.green,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: theme.scaffoldBackgroundColor,
-                  width: 2,
-                ),
-              ),
-              child: badgeText != null
-                  ? Text(
-                      badgeText!,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    )
-                  : const SizedBox(width: 8, height: 8),
-            ),
+            bottom: -4,
+            right: -4,
+            child: badge!,
           ),
         ],
       );
     }
 
-    if (onTap != null) {
-      return InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(size),
-        child: avatar,
+    return avatarWidget;
+  }
+
+  Widget _buildContent() {
+    // Show image if available
+    if (src != null && src!.isNotEmpty) {
+      return Image.network(
+        src!,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return _buildFallbackContent();
+        },
       );
     }
 
-    return avatar;
+    return _buildFallbackContent();
+  }
+
+  Widget _buildFallbackContent() {
+    // Show initials if name is provided
+    if (name != null && name!.isNotEmpty) {
+      return Center(
+        child: Text(
+          _getInitials(name!),
+          style: TextStyle(
+            fontSize: _getTextSize(),
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+        ),
+      );
+    }
+
+    // Show custom fallback or default icon
+    if (fallback != null) {
+      return Center(child: fallback!);
+    }
+
+    return Icon(
+      Icons.person,
+      size: _getIconSize(),
+      color: Colors.white,
+    );
+  }
+
+  String _getInitials(String name) {
+    final parts = name.trim().split(' ');
+    if (parts.length >= 2) {
+      return '${parts[0][0]}${parts[parts.length - 1][0]}'.toUpperCase();
+    }
+    return name.substring(0, name.length >= 2 ? 2 : 1).toUpperCase();
+  }
+
+  double _getAvatarSize() {
+    switch (size) {
+      case AvatarSize.xs:
+        return 24;
+      case AvatarSize.sm:
+        return 32;
+      case AvatarSize.md:
+        return 40;
+      case AvatarSize.lg:
+        return 48;
+      case AvatarSize.xl:
+        return 64;
+      case AvatarSize.xxl:
+        return 96;
+    }
+  }
+
+  double _getTextSize() {
+    switch (size) {
+      case AvatarSize.xs:
+        return 12;
+      case AvatarSize.sm:
+        return 14;
+      case AvatarSize.md:
+        return 16;
+      case AvatarSize.lg:
+        return 18;
+      case AvatarSize.xl:
+        return 24;
+      case AvatarSize.xxl:
+        return 36;
+    }
+  }
+
+  double _getIconSize() {
+    switch (size) {
+      case AvatarSize.xs:
+        return 12;
+      case AvatarSize.sm:
+        return 16;
+      case AvatarSize.md:
+        return 20;
+      case AvatarSize.lg:
+        return 24;
+      case AvatarSize.xl:
+        return 32;
+      case AvatarSize.xxl:
+        return 48;
+    }
   }
 }
 
-/// Avatar Group - displays multiple avatars with overlap
-class AvatarGroup extends StatelessWidget {
-  final List<String> imageUrls;
-  final int maxCount;
-  final double size;
-  final double overlap;
-
-  const AvatarGroup({
-    Key? key,
-    required this.imageUrls,
-    this.maxCount = 4,
-    this.size = 40,
-    this.overlap = 12,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final displayCount = imageUrls.length > maxCount ? maxCount : imageUrls.length;
-    final remaining = imageUrls.length - maxCount;
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: List.generate(displayCount + (remaining > 0 ? 1 : 0), (index) {
-        if (index == displayCount && remaining > 0) {
-          // Show "+N" avatar
-          return Transform.translate(
-            offset: Offset(-overlap * index, 0),
-            child: AppAvatar(
-              size: size,
-              text: '+$remaining',
-              backgroundColor: Colors.grey.shade300,
-              textColor: Colors.black87,
-            ),
-          );
-        }
-
-        return Transform.translate(
-          offset: Offset(-overlap * index, 0),
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Theme.of(context).scaffoldBackgroundColor,
-                width: 2,
-              ),
-            ),
-            child: AppAvatar(
-              size: size,
-              imageUrl: imageUrls[index],
-            ),
-          ),
-        );
-      }),
-    );
-  }
+/// Avatar sizes matching web app
+enum AvatarSize {
+  xs,
+  sm,
+  md,
+  lg,
+  xl,
+  xxl,
 }

@@ -1,141 +1,210 @@
 import 'package:flutter/material.dart';
 
-/// Icon button widget matching web app design
+/// IconButton widget matching web app design
+/// 
+/// Matches web IconButton component with all features:
+/// - 5 variants: default, primary, secondary, ghost, danger
+/// - 4 sizes: sm, md, lg, xl
+/// - Loading state
+/// - Disabled state
+/// - Tooltip support
+/// - Circular shape
 class AppIconButton extends StatelessWidget {
   final IconData icon;
-  final VoidCallback? onPressed;
   final IconButtonVariant variant;
   final IconButtonSize size;
-  final Color? color;
-  final Color? backgroundColor;
+  final bool disabled;
+  final bool loading;
+  final VoidCallback? onPressed;
   final String? tooltip;
-  final bool isLoading;
 
   const AppIconButton({
-    Key? key,
+    super.key,
     required this.icon,
+    this.variant = IconButtonVariant.defaultVariant,
+    this.size = IconButtonSize.md,
+    this.disabled = false,
+    this.loading = false,
     this.onPressed,
-    this.variant = IconButtonVariant.standard,
-    this.size = IconButtonSize.medium,
-    this.color,
-    this.backgroundColor,
     this.tooltip,
-    this.isLoading = false,
-  }) : super(key: key);
+  });
+
+  /// Default icon button
+  const AppIconButton.defaultVariant({
+    super.key,
+    required this.icon,
+    this.size = IconButtonSize.md,
+    this.disabled = false,
+    this.loading = false,
+    this.onPressed,
+    this.tooltip,
+  }) : variant = IconButtonVariant.defaultVariant;
+
+  /// Primary icon button
+  const AppIconButton.primary({
+    super.key,
+    required this.icon,
+    this.size = IconButtonSize.md,
+    this.disabled = false,
+    this.loading = false,
+    this.onPressed,
+    this.tooltip,
+  }) : variant = IconButtonVariant.primary;
+
+  /// Secondary icon button
+  const AppIconButton.secondary({
+    super.key,
+    required this.icon,
+    this.size = IconButtonSize.md,
+    this.disabled = false,
+    this.loading = false,
+    this.onPressed,
+    this.tooltip,
+  }) : variant = IconButtonVariant.secondary;
+
+  /// Ghost icon button
+  const AppIconButton.ghost({
+    super.key,
+    required this.icon,
+    this.size = IconButtonSize.md,
+    this.disabled = false,
+    this.loading = false,
+    this.onPressed,
+    this.tooltip,
+  }) : variant = IconButtonVariant.ghost;
+
+  /// Danger icon button
+  const AppIconButton.danger({
+    super.key,
+    required this.icon,
+    this.size = IconButtonSize.md,
+    this.disabled = false,
+    this.loading = false,
+    this.onPressed,
+    this.tooltip,
+  }) : variant = IconButtonVariant.danger;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final iconColor = color ?? _getDefaultColor(theme);
-    final bgColor = backgroundColor ?? _getBackgroundColor(theme);
+    final colorScheme = theme.colorScheme;
 
-    Widget button = Container(
-      width: _getSize(),
-      height: _getSize(),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(_getBorderRadius()),
-        border: variant == IconButtonVariant.outlined
-            ? Border.all(color: iconColor.withOpacity(0.3))
-            : null,
-      ),
-      child: isLoading
-          ? Center(
-              child: SizedBox(
-                width: _getIconSize(),
-                height: _getIconSize(),
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(iconColor),
+    final button = Material(
+      color: _getBackgroundColor(colorScheme),
+      shape: const CircleBorder(),
+      child: InkWell(
+        onTap: disabled || loading || onPressed == null ? null : onPressed,
+        customBorder: const CircleBorder(),
+        child: Container(
+          width: _getSize(),
+          height: _getSize(),
+          alignment: Alignment.center,
+          child: loading
+              ? SizedBox(
+                  width: _getIconSize() * 0.6,
+                  height: _getIconSize() * 0.6,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation(_getIconColor(colorScheme)),
+                  ),
+                )
+              : Icon(
+                  icon,
+                  size: _getIconSize(),
+                  color: _getIconColor(colorScheme),
                 ),
-              ),
-            )
-          : Icon(
-              icon,
-              size: _getIconSize(),
-              color: iconColor,
-            ),
+        ),
+      ),
     );
 
     if (tooltip != null) {
-      button = Tooltip(
+      return Tooltip(
         message: tooltip!,
         child: button,
       );
     }
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: isLoading ? null : onPressed,
-        borderRadius: BorderRadius.circular(_getBorderRadius()),
-        child: button,
-      ),
-    );
+    return button;
   }
 
-  Color _getDefaultColor(ThemeData theme) {
+  Color _getBackgroundColor(ColorScheme colorScheme) {
+    if (disabled) {
+      return colorScheme.surfaceVariant.withOpacity(0.5);
+    }
+
     switch (variant) {
-      case IconButtonVariant.standard:
-        return Colors.grey.shade700;
-      case IconButtonVariant.filled:
-        return Colors.white;
-      case IconButtonVariant.outlined:
-        return theme.colorScheme.primary;
-      case IconButtonVariant.tonal:
-        return theme.colorScheme.primary;
+      case IconButtonVariant.defaultVariant:
+        return colorScheme.surfaceVariant;
+      case IconButtonVariant.primary:
+        return const Color(0xFF6366F1);
+      case IconButtonVariant.secondary:
+        return colorScheme.surface;
+      case IconButtonVariant.ghost:
+        return Colors.transparent;
+      case IconButtonVariant.danger:
+        return const Color(0xFFDC2626);
     }
   }
 
-  Color _getBackgroundColor(ThemeData theme) {
+  Color _getIconColor(ColorScheme colorScheme) {
+    if (disabled) {
+      return colorScheme.onSurface.withOpacity(0.5);
+    }
+
     switch (variant) {
-      case IconButtonVariant.standard:
-        return Colors.transparent;
-      case IconButtonVariant.filled:
-        return theme.colorScheme.primary;
-      case IconButtonVariant.outlined:
-        return Colors.transparent;
-      case IconButtonVariant.tonal:
-        return theme.colorScheme.primary.withOpacity(0.1);
+      case IconButtonVariant.defaultVariant:
+        return colorScheme.onSurface;
+      case IconButtonVariant.primary:
+        return Colors.white;
+      case IconButtonVariant.secondary:
+        return colorScheme.onSurface;
+      case IconButtonVariant.ghost:
+        return colorScheme.onSurface;
+      case IconButtonVariant.danger:
+        return Colors.white;
     }
   }
 
   double _getSize() {
     switch (size) {
-      case IconButtonSize.small:
+      case IconButtonSize.sm:
         return 32;
-      case IconButtonSize.medium:
+      case IconButtonSize.md:
         return 40;
-      case IconButtonSize.large:
+      case IconButtonSize.lg:
         return 48;
+      case IconButtonSize.xl:
+        return 56;
     }
   }
 
   double _getIconSize() {
     switch (size) {
-      case IconButtonSize.small:
+      case IconButtonSize.sm:
         return 16;
-      case IconButtonSize.medium:
+      case IconButtonSize.md:
         return 20;
-      case IconButtonSize.large:
+      case IconButtonSize.lg:
         return 24;
+      case IconButtonSize.xl:
+        return 28;
     }
   }
-
-  double _getBorderRadius() {
-    return _getSize() / 2;
-  }
 }
 
+/// Icon button variants matching web app
 enum IconButtonVariant {
-  standard,
-  filled,
-  outlined,
-  tonal,
+  defaultVariant,
+  primary,
+  secondary,
+  ghost,
+  danger,
 }
 
+/// Icon button sizes matching web app
 enum IconButtonSize {
-  small,
-  medium,
-  large,
+  sm,
+  md,
+  lg,
+  xl,
 }
