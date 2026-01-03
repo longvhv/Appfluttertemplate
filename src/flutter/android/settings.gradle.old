@@ -1,3 +1,7 @@
+// OLD GROOVY VERSION - REPLACED WITH settings.gradle.kts
+// This file is kept for reference only
+// Migration to Kotlin DSL completed on January 3, 2026
+
 pluginManagement {
     def flutterSdkPath = {
         def properties = new Properties()

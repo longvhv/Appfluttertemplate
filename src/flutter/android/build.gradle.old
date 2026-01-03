@@ -1,3 +1,7 @@
+// OLD GROOVY VERSION - REPLACED WITH build.gradle.kts
+// This file is kept for reference only
+// Migration to Kotlin DSL completed on January 3, 2026
+
 buildscript {
     ext.kotlin_version = '1.9.22'
     repositories {

@@ -1,5 +1,10 @@
 # 🚀 Android Quick Start Guide
 
+**Updated:** January 3, 2026  
+**Kotlin:** 2.1.0 ✅  
+**AGP:** 8.9.1 ✅  
+**Format:** Kotlin DSL ✅
+
 ## ⚡ **Fast Build - 3 Steps**
 
 ### **Step 1: Verify Flutter Setup**
