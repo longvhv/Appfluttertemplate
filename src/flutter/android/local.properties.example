@@ -1,0 +1,20 @@
+# Local Properties for Android Build
+# Copy this file to local.properties and update paths for your system
+
+# Flutter SDK path
+# Windows: sdk.dir=C:\\Users\\YourName\\flutter
+# macOS/Linux: sdk.dir=/Users/YourName/flutter
+flutter.sdk=/path/to/flutter/sdk
+
+# Android SDK path (optional, usually auto-detected)
+# Windows: sdk.dir=C:\\Users\\YourName\\AppData\\Local\\Android\\Sdk
+# macOS: sdk.dir=/Users/YourName/Library/Android/sdk
+# Linux: sdk.dir=/home/YourName/Android/Sdk
+sdk.dir=/path/to/android/sdk
+
+# Flutter build mode
+flutter.buildMode=debug
+
+# Flutter version
+flutter.versionName=1.0.0
+flutter.versionCode=1

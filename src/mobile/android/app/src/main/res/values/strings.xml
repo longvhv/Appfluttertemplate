@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Enterprise App</string>
+    
+    <!-- App description -->
+    <string name="app_description">Enterprise-grade mobile application</string>
+    
+    <!-- Common strings -->
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="loading">Loading...</string>
+    <string name="error">Error</string>
+    <string name="retry">Retry</string>
+</resources>

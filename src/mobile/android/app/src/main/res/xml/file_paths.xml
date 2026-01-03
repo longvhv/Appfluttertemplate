@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    File Paths Provider Configuration
+    
+    This file defines paths that can be shared with other apps
+    via FileProvider for secure file sharing.
+-->
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Internal app storage -->
+    <files-path name="app_files" path="." />
+    
+    <!-- Cache directory -->
+    <cache-path name="app_cache" path="." />
+    
+    <!-- External storage (if needed in future) -->
+    <external-path name="external_files" path="." />
+    
+    <!-- External cache -->
+    <external-cache-path name="external_cache" path="." />
+</paths>

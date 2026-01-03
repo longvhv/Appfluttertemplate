@@ -1,0 +1,31 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import '../core/l10n/app_localizations.dart';
+
+class RegisterScreen extends StatelessWidget {
+  const RegisterScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(l10n.register),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(l10n.register),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => context.go('/login'),
+              child: Text(l10n.login),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
